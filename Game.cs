@@ -8,41 +8,18 @@ namespace ShipBattle
 {
     public class Game
     {
-        private Board board;
+        private Board _myboard;
+        private Board _cpuboard;
 
         public Game() 
         { 
-            board = new Board();
+            _myboard = new Board();
+            _cpuboard = new Board();
         }
 
-        private void ComputerTurn()
+        public void DisplayBoard()
         {
-            Console.WriteLine("Computer's turn:");
-
-            int computerRow, computerCol;
-
-            // Se não há alvos marcados como atingidos, ataque aleatoriamente
-            if (!board.HasTargets())
-            {
-                do
-                {
-                    computerRow = new Random().Next(0, 10);
-                    computerCol = new Random().Next(0, 10);
-                } while (!board.IsValidAttack(computerRow, computerCol));
-            }
-            else
-            {
-                // Se há alvos marcados como atingidos, ataque nas direções vertical e horizontal
-                (computerRow, computerCol) = board.GetNextTarget();
-            }
-
-            bool computerHit = board.Attack(computerRow, computerCol);
-
-            // Display the result of the computer's attack
-            if (computerHit)
-                Console.WriteLine($"Computer hit at ({computerRow}, {computerCol})!");
-            else
-                Console.WriteLine($"Computer missed at ({computerRow}, {computerCol}).");
+            DisplayBoard(_myboard, _cpuboard);
         }
 
         public void Start()
@@ -50,13 +27,13 @@ namespace ShipBattle
             Console.WriteLine("Welcome to Ship Battle");
 
             // Place ships
-            board.PlaceShipsRandomly();
+            _myboard.PlaceShipsRandomly();
+            _cpuboard.PlaceShipsRandomly();
 
             // Game loop
-            while (!board.IsGameOver())
+            while (!_cpuboard.IsGameOver() && !_myboard.IsGameOver())
             {
-                Console.WriteLine("Your board:");
-                board.DisplayBoard();
+                DisplayBoard();
 
                 // Player's turn
                 Console.WriteLine("Your turn - Enter attack coordinates");
@@ -67,9 +44,9 @@ namespace ShipBattle
                 Console.WriteLine();
 
                 // Verify if the attack is valid and make the attack
-                if (board.IsValidAttack(playerRow, playerCol))
+                if (_cpuboard.IsValidAttack(playerRow, playerCol))
                 {
-                    bool hit = board.Attack((playerRow - 1), (playerCol - 1));
+                    bool hit = _cpuboard.Attack((playerRow - 1), (playerCol - 1));
 
                     // Display the result of the attack to the player
                     if (hit)
@@ -83,7 +60,7 @@ namespace ShipBattle
                 }
 
                 // Check if the game is over after player's turn
-                if (board.IsGameOver())
+                if (_cpuboard.IsGameOver())
                     break;
 
                 // Computer's turn
@@ -95,9 +72,9 @@ namespace ShipBattle
                     // Generate random attack coordinates for the computer
                     computerRow = new Random().Next(0, 10);
                     computerCol = new Random().Next(0, 10);
-                } while (!board.IsValidAttack(computerRow, computerCol));
+                } while (!_myboard.IsValidAttack(computerRow, computerCol));
 
-                bool computerHit = board.Attack(computerRow, computerCol);
+                bool computerHit = _myboard.Attack(computerRow, computerCol);
 
                 // Display the result of the computer's attack
                 if (computerHit)
@@ -106,22 +83,64 @@ namespace ShipBattle
                     Console.WriteLine($"Computer missed at ({computerRow + 1}, {computerCol + 1}).");
 
                 // Check if the game is over after computer's turn
-                if (board.IsGameOver())
+                if (_myboard.IsGameOver())
                     break;
             }
 
             // Display the final board with all the ships
             Console.WriteLine("Final board:");
-            board.DisplayBoard();
+            DisplayBoard();
 
             // Check the result of the game
-            if (board.AreAllComputerShipsDestroyed())
+            if (_cpuboard.AreAllComputerShipsDestroyed())
             {
                 Console.WriteLine("Congratulations! You destroyed all the computer's ships. You won!");
             }
             else
             {
                 Console.WriteLine("All your ships were destroyed. You lost!");
+            }
+        }
+
+        public void DisplayBoard(Board _myboard, Board _cpuboard)
+        {
+            Console.Write("   ");
+            for (int col = 0; col < _myboard.GetBoard().GetLength(1); col++)
+            {
+                Console.Write((col + 1) + " ");
+            }
+
+            Console.Write("   ");
+            for (int col = 0; col < _cpuboard.GetBoard().GetLength(1); col++)
+            {
+                Console.Write((col + 1) + " ");
+            }
+
+            Console.WriteLine();
+
+            for (int row = 0; row < _cpuboard.GetBoard().GetLength(0); row++)
+            {
+                if (row >= 9)
+                {
+                    Console.Write((row + 1) + " ");
+                }
+                else
+                {
+                    Console.Write((row + 1) + "  ");
+                }
+                for (int col = 0; col < _myboard.GetBoard().GetLength(1); col++)
+                {
+                    Console.Write(_myboard.GetBoard()[row, col] + " ");
+                }
+                Console.Write("    ");
+
+                for (int col = 0; col < _cpuboard.GetBoard().GetLength(1); col++)
+                {
+                    Console.Write(_cpuboard.GetBoard()[row, col] + " ");
+                }
+
+                Console.WriteLine();
+
             }
         }
     }

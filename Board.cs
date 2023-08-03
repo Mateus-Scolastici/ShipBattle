@@ -44,6 +44,8 @@ namespace ShipBattle
             }
         }
 
+        
+
         private List<(int, int)> targets = new List<(int, int)>();
 
         public bool HasTargets()
@@ -90,7 +92,7 @@ namespace ShipBattle
         //Method to insert ships randomly on the board
         public void PlaceShipRandomly(Ship ship)
         {
-            Random random = new Random();
+            Random random = new Random(DateTime.Now.Millisecond);
 
             while (true) 
             {
@@ -249,5 +251,7 @@ namespace ShipBattle
                 Console.WriteLine();
             }
         }
+
+        public char[,] GetBoard() => _board;
     }
 }
